@@ -9,6 +9,11 @@
 		<property name="sessionFactory" ref="sessionFactory"></property>
 	</bean>
 	
+	<bean id="viewManager" class="com.pj.service.ViewManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	
 	<bean id="userManagerBase" class="com.pj.service.UserManagerImpl">
 		<property name="userDao" ref="userDao"></property>
 	</bean>

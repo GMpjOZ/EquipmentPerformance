@@ -5,6 +5,6 @@
 <hibernate-configuration>
     <session-factory>
         <!-- 引入需要映射的类 -->
-        <mapping class="com.pj.model.User"/>
+   <!--    <mapping class="com.pj.model.User"/> -->   
     </session-factory>
 </hibernate-configuration>

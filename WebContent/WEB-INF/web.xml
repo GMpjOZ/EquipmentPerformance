@@ -3,7 +3,7 @@
 xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 id="WebApp_ID" version="2.5">
-<display-name>SpringMvc</display-name>
+<display-name>EquipmentPerformance</display-name>
 <welcome-file-list>
     <welcome-file>Login.jsp</welcome-file>
     <welcome-file>index.html</welcome-file>
@@ -60,7 +60,7 @@ id="WebApp_ID" version="2.5">
 
 <!-- 配置SpringMVC -->
 <servlet>
-    <servlet-name>SpringMvc</servlet-name>
+    <servlet-name>EquipmentPerformance</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <init-param>
         <param-name>contextConfigLocation</param-name>
@@ -69,7 +69,7 @@ id="WebApp_ID" version="2.5">
     <load-on-startup>1</load-on-startup>
 </servlet>
 <servlet-mapping>
-    <servlet-name>SpringMvc</servlet-name>
+    <servlet-name>EquipmentPerformance</servlet-name>
     <url-pattern>/</url-pattern>
 </servlet-mapping>
 <!-- 引用js,如果无此配置，则无法对js进行加载 -->
