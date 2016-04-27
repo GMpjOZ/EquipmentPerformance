@@ -17,6 +17,10 @@
 		<property name="sessionFactory" ref="sessionFactory"></property>
 	</bean>
 	
+	<bean id="calculateService" class="com.pj.service.CalculateService">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
 	<bean id="userManagerBase" class="com.pj.service.UserManagerImpl">
 		<property name="userDao" ref="userDao"></property>
 	</bean>
