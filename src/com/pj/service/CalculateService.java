@@ -22,7 +22,7 @@ public class CalculateService {
 	}
 
 	public Map<String, Double> calculateUtilization(Map<String, Double> map,
-			String type, String mode) {
+			String type, String model) {
 		String hql = "from Operation op where op.asset_type=? ";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, type);
@@ -44,7 +44,7 @@ public class CalculateService {
 				assetTime.put(op.getAsset_id(), time + temp);
 			}
 		}
-		if (mode.equals(Model.Asset)) {
+		if (model.equals(Model.Asset)) {
 			for (Operation op : ops) {
 				if (!set.contains(op.getAsset_id())) {
 					set.add(op.getAsset_id());
@@ -55,6 +55,21 @@ public class CalculateService {
 					map.put(op.getAsset_id(), utilization);
 				}
 			}
+		} else if (model.equals(Model.Type)) {
+			long sumTime = 0;
+			long utilizationTime = 0;
+			for (Operation op : ops) {
+				if (!set.contains(op.getAsset_id())) {
+					set.add(op.getAsset_id());
+					sumTime = sumTime
+							+ TimeUtils.getSumTime(startTime, endTime,
+									op.getOp_dept());
+					utilizationTime = utilizationTime
+							+ assetTime.get(op.getAsset_id());
+				}
+			}
+			double utilization = utilizationTime / sumTime * 100;
+			map.put(type, utilization);
 		}
 
 		return map;
