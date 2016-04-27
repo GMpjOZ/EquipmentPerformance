@@ -13,6 +13,9 @@
 		<property name="sessionFactory" ref="sessionFactory"></property>
 	</bean>
 	
+	<bean id="confgService" class="com.pj.service.ConfgService">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
 	
 	<bean id="userManagerBase" class="com.pj.service.UserManagerImpl">
 		<property name="userDao" ref="userDao"></property>

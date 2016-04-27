@@ -5,14 +5,8 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
 id="WebApp_ID" version="2.5">
 <display-name>EquipmentPerformance</display-name>
 <welcome-file-list>
-    <welcome-file>Login.jsp</welcome-file>
-    <welcome-file>index.html</welcome-file>
-    <welcome-file>index.htm</welcome-file>
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>default.html</welcome-file>
-    <welcome-file>default.htm</welcome-file>
-    <welcome-file>default.jsp</welcome-file>
-</welcome-file-list>
+    <welcome-file>index</welcome-file>
+  </welcome-file-list>
 
 <!-- 加载所有的配置文件 -->
 <context-param>

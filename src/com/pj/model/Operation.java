@@ -2,13 +2,24 @@ package com.pj.model;
 
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+@Entity  
+@Table(name="operationview")  
 public class Operation {
 
+	@Column
 	private String op_id;
+	@Column
 	private String op_strt_time;
+	@Column
 	private String op_end_time;
+	@Column
 	private String op_dept;
+	@Column
 	private String asset_id;
+	@Column
 	private String asset_type;
 	
 	private String tables;

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.pj.model.Operation;
+import com.pj.service.ConfgService;
 import com.pj.service.UserManager;
 import com.pj.service.ViewManager;
 
@@ -18,7 +19,15 @@ import com.pj.service.ViewManager;
 public class TestController {
 	@Resource(name="viewManager")  
 	private ViewManager viewManager;  
+	@Resource(name="confgService")  
+	private ConfgService confgService;
 	
+	@RequestMapping("/isconfg")
+	public String getisConfg(HttpServletRequest request){
+		System.out.println(confgService.isConfg());
+		 return "/Index";  
+		
+	}
 	@RequestMapping("/createoperation")  
 	public String getAllUser(HttpServletRequest request){  
 		Operation op=new Operation();
@@ -43,17 +52,17 @@ public class TestController {
 		Operation op2=new Operation();
 		op2.setAsset_id("operation4.asset_id");
 		op2.setAsset_type("operation4.asset_type");
-		op2.setOp_dept("operation5.op_dept");
-		op2.setOp_end_time("operation5.op_end_tine");
+		op2.setOp_dept("operation5.dept");
+		op2.setOp_end_time("operation5.end_tine");
 		op2.setOp_id("operation4.op_id");
-		op2.setOp_strt_time("operation4.op_strt_time");
+		op2.setOp_strt_time("operation4.strt_time");
 		op2.setTables("operation4,operation5");
-		op2.setRules("operation4.op_id=operation5.op_id ");
+		op2.setRules("operation4.op_id=operation5.id ");
 		List<Operation>ops=new ArrayList<Operation>();
 		ops.add(op);
 		ops.add(op1);
 		ops.add(op2);
-	   viewManager.crateOperationView(ops);
+	   System.out.println(viewManager.crateOperationView(ops));
 	    return "/Index";  
 	}  
 }
