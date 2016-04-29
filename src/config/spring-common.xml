@@ -8,42 +8,47 @@
       http://www.springframework.org/schema/context/spring-context.xsd  
       http://www.springframework.org/schema/mvc  
       http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
-	
+
 	<!-- 配置数据源 -->
 	<bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost:3306/EquipmentPerformance" />
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/EquipmentPerformance" />
 		<property name="username" value="root" />
 		<property name="password" value="" />
 	</bean>
 
 	<!-- 配置SessionFactory -->
-<bean id="sessionFactory"
-    class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-    <property name="dataSource" ref="dataSource" />
-    <property name="hibernateProperties">
-        <props>
-            <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
-            <prop key="hibernate.hbm2ddl.auto">none</prop>
-            <prop key="hibernate.show_sql">true</prop>
-            <prop key="hibernate.format_sql">true</prop>
-        </props>
-    </property>
-    <!-- 注解扫描的包 -->
-    <property name="annotatedClasses">
-        <list>
-            <value>com.pj.model.User</value>
-        </list>
-    </property>
-</bean>
-    <!-- 事务管理器 -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">none</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+			</props>
+		</property>
+		<!-- 注解扫描的包 -->
+		<property name="annotatedClasses">
+			<list>
+				<value>com.pj.model.User</value>
+				<value>com.pj.model.Asset</value>
+				<value>com.pj.model.Operation</value>
+				<value>com.pj.model.Repair</value>
+				<value>com.pj.model.Scrap</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 事务管理器 -->
 	<bean id="transactionManager"
 		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory"></property>
 	</bean>
-    
-    <!-- 事务代理类 -->
+
+	<!-- 事务代理类 -->
 	<bean id="transactionBese"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
 		lazy-init="true" abstract="true">
