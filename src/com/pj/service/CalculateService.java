@@ -17,6 +17,7 @@ import utils.TimeUtils;
 import com.pj.model.Cost;
 import com.pj.model.Operation;
 import com.pj.model.Repair;
+import com.pj.model.Scrap;
 
 public class CalculateService {
 	private SessionFactory sessionFactory;
@@ -24,7 +25,13 @@ public class CalculateService {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-
+/**
+ *  计算使用率
+ * @param map 存放使用率的容器
+ * @param type 计算使用率的类型
+ * @param model 计算模式 
+ * @return
+ */
 	public Map<String, Double> calculateUtilization(Map<String, Double> map,
 			String type, String model) {
 		String hql = "from Operation op where op.asset_type=? ";
@@ -86,6 +93,14 @@ public class CalculateService {
 		return map;
 	}
 
+	/**
+	 * 计算可利用率和故障率
+	 * @param map 容器 
+	 * @param type 设备类型
+	 * @param model 计算模式
+	 * @param analyticType 方法
+	 * @return
+	 */
 	public Map<String, Double> calculateAvalOrFail(Map<String, Double> map,
 			String type, String model, String analyticType) {
 		String hql = "from Repair repair where repair.asset_type=? ";
@@ -156,6 +171,13 @@ public class CalculateService {
 		return map;
 	}
 
+	/**
+	 *  计算停机损失
+	 * @param map 容器
+	 * @param type 设备类型
+	 * @param model 计算模式
+	 * @return
+	 */
 	public Map<String, Double> calculateDownLosses(Map<String, Double> map,
 			String type, String model) {
 		String hql = "from Operation op where op.asset_type=? ";
@@ -215,7 +237,7 @@ public class CalculateService {
 		long fail_time = 0;
 		long repair_time = 0;
 		int repair_count = 0;
-		if (model.equals(Model.Asset)) {
+		if (model.equals(Model.Type)) {
 
 			for (String id : asset_cost.keySet()) {
 				op_cost = op_cost + asset_cost.get(id).op_cost;
@@ -244,6 +266,97 @@ public class CalculateService {
 			}
 		}
 
+		return map;
+	}
+
+	/**
+	 * 计算某段时间的设备完好率
+	 * @param map 容器
+	 * @param type 设备类型
+	 * @param time 时间
+	 * @return
+	 */
+	public Map<String, Double> calculateUnwounded(Map<String, Double> map,
+			String type, String time) {
+		String hql = "from Repair rapair where rapair.asset_type=? and repair.decl_time like ?";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, type);
+		query.setString(1, time + "%");
+		List<Repair> repairs = query.list();
+		Set<String> set = new HashSet<String>();
+		for (Repair repair : repairs) {
+			set.add(repair.getAsset_id());
+		}
+		map.put(type, (double) set.size() / API.GoodAsset);
+		return map;
+	}
+
+	/**
+	 * 计算MRRT（设备的平均修复时间）
+	 * @param map 容器
+	 * @param type 设备类型
+	 * @param model 计算模式
+	 * @return
+	 */
+	public Map<String, Double> calculateMRRT(Map<String, Double> map,
+			String type, String model) {
+		String hql = "from Repair rapair where rapair.asset_type=?";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, type);
+		List<Repair> repairs = query.list();
+		Map<String, Cost> asset_time = new HashMap<String, Cost>();
+		for (Repair repair : repairs) {
+			if (asset_time.get(repair.getAsset_id()) == null) {
+				Cost cost = new Cost();
+				long time = TimeUtils.getDeltaTime(repair.getDecl_time(),
+						repair.getRep_end_time());
+				cost.fail_time = time;
+				cost.repair_count = 1;
+				asset_time.put(repair.getAsset_id(), cost);
+
+			} else {
+				Cost cost = asset_time.get(repair.getAsset_id());
+				long time = TimeUtils.getDeltaTime(repair.getDecl_time(),
+						repair.getRep_end_time())
+						+ asset_time.get(repair.getAsset_id()).fail_time;
+				int count = asset_time.get(repair.getAsset_id()).repair_count + 1;
+				cost.fail_time = time;
+				cost.repair_count = count;
+				asset_time.put(repair.getAsset_id(), cost);
+			}
+		}
+		if (model.equals(Model.Asset)) {
+			for (String id : asset_time.keySet()) {
+				Cost cost = asset_time.get(id);
+				map.put(id, (double) cost.fail_time / cost.repair_count);
+			}
+		} else if (model.equals(Model.Type)) {
+			long failtime = 0;
+			int count = 0;
+			for (String id : asset_time.keySet()) {
+				failtime = asset_time.get(id).fail_time + failtime;
+				count = count + asset_time.get(id).repair_count;
+			}
+			map.put(type, (double) failtime / count);
+		}
+		return map;
+	}
+
+	/**
+	 * 计算某段时间内的报废率
+	 * @param map 容器
+	 * @param type 设备类型
+	 * @param time 时间
+	 * @return
+	 */
+	public Map<String, Double> calculateScrap(Map<String, Double> map,
+			String type, String time) {
+		String hql = "from Scrap scrap where scrap.asset_type=? and scrap_time like ?";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, type);
+		query.setString(1, time);
+		List<Scrap> scraps = query.list();
+		map.put(type, (double)scraps.size() / API.GoodAsset);
 		return map;
 	}
 }
