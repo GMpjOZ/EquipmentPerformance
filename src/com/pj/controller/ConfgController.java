@@ -13,7 +13,7 @@ import com.pj.service.ConfgService;
  
 public class ConfgController {
 	
-	@Resource(name="confgService")  
+	@Resource  
 	private ConfgService confgService;
 	
 //	@RequestMapping(value="")

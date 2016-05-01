@@ -5,5 +5,6 @@ public class API {
 	public static String ENDTIME = "1999-01-01 01-01-01";
 
 	public static int GoodAsset = 100;
-	public static String XMLPath = "";
+	public static String XMLCalculatePath = "calculate.xml";
+	public static String XMLDeptPath="dept.xml";
 }

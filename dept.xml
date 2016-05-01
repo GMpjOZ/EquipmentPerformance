@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root> 
+  <dept type="麻醉科">10</dept>  
+  <dept type="心脏科">12</dept> 
+</root>

@@ -34,7 +34,6 @@
 		<!-- 注解扫描的包 -->
 		<property name="annotatedClasses">
 			<list>
-				<value>com.pj.model.User</value>
 				<value>com.pj.model.Asset</value>
 				<value>com.pj.model.Operation</value>
 				<value>com.pj.model.Repair</value>

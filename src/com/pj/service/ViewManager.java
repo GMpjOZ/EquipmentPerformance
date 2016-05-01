@@ -2,21 +2,25 @@ package com.pj.service;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Service;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import com.pj.model.Operation;
 import com.pj.model.Repair;
 import com.pj.model.Scrap;
-
+@Service
 public class ViewManager {
+	@Resource
 	private SessionFactory sessionFactory;
 
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+//	public void setSessionFactory(SessionFactory sessionFactory) {
+//		this.sessionFactory = sessionFactory;
+//	}
 
 	private void createView(String sql) throws MySQLSyntaxErrorException {
 		SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(

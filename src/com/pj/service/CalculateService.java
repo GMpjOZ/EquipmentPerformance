@@ -6,37 +6,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Service;
 
 import utils.API;
-import utils.AnalyticType;
-import utils.Model;
 import utils.TimeUtils;
 
 import com.pj.model.Cost;
 import com.pj.model.Operation;
 import com.pj.model.Repair;
 import com.pj.model.Scrap;
-
+@Service
 public class CalculateService {
+	@Resource
 	private SessionFactory sessionFactory;
 
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
 /**
  *  计算使用率
  * @param map 存放使用率的容器
- * @param type 计算使用率的类型
+ * @param assetType 计算使用率的类型
  * @param model 计算模式 
  * @return
  */
 	public Map<String, Double> calculateUtilization(Map<String, Double> map,
-			String type, String model) {
+			String assetType, String model) {
 		String hql = "from Operation op where op.asset_type=? ";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, type);
+		query.setString(0, assetType);
 		List<Operation> ops = query.list();
 		String startTime = API.STARTTIME;
 		String endTime = API.ENDTIME;
@@ -55,12 +54,12 @@ public class CalculateService {
 				assetTime.put(op.getAsset_id(), time + temp);
 			}
 		}
-		if (model.equals(Model.Asset)) {
+		if (model.equals("Asset")) {
 			for (Operation op : ops) {
 				if (!set.contains(op.getAsset_id())) {
 					hql = "select asset.asset_dept from Asset asset where asset.id=?";
 					query = sessionFactory.getCurrentSession().createQuery(hql);
-					query.setString(0, type);
+					query.setString(0, assetType);
 					String dept = (String) query.uniqueResult();
 					set.add(op.getAsset_id());
 					long sumTime = TimeUtils.getSumTime(startTime, endTime,
@@ -70,14 +69,14 @@ public class CalculateService {
 					map.put(op.getAsset_id(), utilization);
 				}
 			}
-		} else if (model.equals(Model.Type)) {
+		} else if (model.equals("Type")) {
 			long sumTime = 0;
 			long utilizationTime = 0;
 			for (Operation op : ops) {
 				if (!set.contains(op.getAsset_id())) {
 					hql = "select asset.asset_dept from Asset asset where asset.id=?";
 					query = sessionFactory.getCurrentSession().createQuery(hql);
-					query.setString(0, type);
+					query.setString(0, op.getAsset_id());
 					String dept = (String) query.uniqueResult();
 					set.add(op.getAsset_id());
 					sumTime = sumTime
@@ -87,7 +86,7 @@ public class CalculateService {
 				}
 			}
 			double utilization = utilizationTime / sumTime * 100;
-			map.put(type, utilization);
+			map.put(assetType, utilization);
 		}
 
 		return map;
@@ -96,16 +95,16 @@ public class CalculateService {
 	/**
 	 * 计算可利用率和故障率
 	 * @param map 容器 
-	 * @param type 设备类型
+	 * @param assetType 设备类型
 	 * @param model 计算模式
 	 * @param analyticType 方法
 	 * @return
 	 */
 	public Map<String, Double> calculateAvalOrFail(Map<String, Double> map,
-			String type, String model, String analyticType) {
+			String assetType, String model, String analyticType) {
 		String hql = "from Repair repair where repair.asset_type=? ";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, type);
+		query.setString(0, assetType);
 		List<Repair> repairs = query.list();
 		String startTime = API.STARTTIME;
 		String endTime = API.ENDTIME;
@@ -123,18 +122,18 @@ public class CalculateService {
 				assetTime.put(repair.getAsset_id(), time + temp);
 			}
 		}
-		if (model.equals(Model.Asset)) {
+		if (model.equals("Asset")) {
 			for (Repair repair : repairs) {
 				if (!set.contains(repair.getAsset_id())) {
 					hql = "select asset.asset_dept from Asset asset where asset.id=?";
 					query = sessionFactory.getCurrentSession().createQuery(hql);
-					query.setString(0, type);
+					query.setString(0, repair.getAsset_id());
 					String dept = (String) query.uniqueResult();
 					set.add(repair.getAsset_id());
 					long sumTime = TimeUtils.getSumTime(startTime, endTime,
 							dept);
 					double result;
-					if (analyticType.equals(AnalyticType.Availability)) {
+					if (analyticType.equals("Availability")) {
 						result = assetTime.get(repair.getAsset_id()) / sumTime
 								* 100;
 					} else {
@@ -144,14 +143,14 @@ public class CalculateService {
 					map.put(repair.getAsset_id(), result);
 				}
 			}
-		} else if (model.equals(Model.Type)) {
+		} else if (model.equals("Type")) {
 			long sumTime = 0;
 			long failTime = 0;
 			for (Repair repair : repairs) {
 				if (!set.contains(repair.getAsset_id())) {
 					hql = "select asset.asset_dept from Asset asset where asset.id=?";
 					query = sessionFactory.getCurrentSession().createQuery(hql);
-					query.setString(0, type);
+					query.setString(0, repair.getAsset_id());
 					String dept = (String) query.uniqueResult();
 					set.add(repair.getAsset_id());
 					sumTime = sumTime
@@ -160,12 +159,12 @@ public class CalculateService {
 				}
 			}
 			double result;
-			if (analyticType.equals(AnalyticType.Availability)) {
+			if (analyticType.equals("Availability")) {
 				result = failTime / sumTime * 100;
 			} else {
 				result = (sumTime - failTime) / sumTime * 100;
 			}
-			map.put(type, result);
+			map.put(assetType, result);
 		}
 
 		return map;
@@ -174,15 +173,15 @@ public class CalculateService {
 	/**
 	 *  计算停机损失
 	 * @param map 容器
-	 * @param type 设备类型
+	 * @param assetType 设备类型
 	 * @param model 计算模式
 	 * @return
 	 */
 	public Map<String, Double> calculateDownLosses(Map<String, Double> map,
-			String type, String model) {
+			String assetType, String model) {
 		String hql = "from Operation op where op.asset_type=? ";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, type);
+		query.setString(0, assetType);
 		List<Operation> ops = query.list();
 		Map<String, Cost> asset_cost = new HashMap<String, Cost>();
 		for (Operation op : ops) {
@@ -205,7 +204,7 @@ public class CalculateService {
 
 		hql = "from Repair rapair where rapair.asset_type=?";
 		query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, type);
+		query.setString(0, assetType);
 		List<Repair> repairs = query.list();
 		for (Repair repair : repairs) {
 			if (asset_cost.get(repair.getAsset_id()) != null) {
@@ -237,7 +236,7 @@ public class CalculateService {
 		long fail_time = 0;
 		long repair_time = 0;
 		int repair_count = 0;
-		if (model.equals(Model.Type)) {
+		if (model.equals("Type")) {
 
 			for (String id : asset_cost.keySet()) {
 				op_cost = op_cost + asset_cost.get(id).op_cost;
@@ -249,7 +248,7 @@ public class CalculateService {
 			}
 			double result = (op_cost / op_time + repair_cost / repair_time)
 					* fail_time / repair_count;
-			map.put(type, result);
+			map.put(assetType, result);
 
 		} else {
 			for (String id : asset_cost.keySet()) {
@@ -272,37 +271,37 @@ public class CalculateService {
 	/**
 	 * 计算某段时间的设备完好率
 	 * @param map 容器
-	 * @param type 设备类型
+	 * @param assetType 设备类型
 	 * @param time 时间
 	 * @return
 	 */
 	public Map<String, Double> calculateUnwounded(Map<String, Double> map,
-			String type, String time) {
+			String assetType, String time) {
 		String hql = "from Repair rapair where rapair.asset_type=? and repair.decl_time like ?";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, type);
+		query.setString(0, assetType);
 		query.setString(1, time + "%");
 		List<Repair> repairs = query.list();
 		Set<String> set = new HashSet<String>();
 		for (Repair repair : repairs) {
 			set.add(repair.getAsset_id());
 		}
-		map.put(type, (double) set.size() / API.GoodAsset);
+		map.put(assetType, (double) set.size() / API.GoodAsset);
 		return map;
 	}
 
 	/**
 	 * 计算MRRT（设备的平均修复时间）
 	 * @param map 容器
-	 * @param type 设备类型
+	 * @param assetType 设备类型
 	 * @param model 计算模式
 	 * @return
 	 */
 	public Map<String, Double> calculateMRRT(Map<String, Double> map,
-			String type, String model) {
+			String assetType, String model) {
 		String hql = "from Repair rapair where rapair.asset_type=?";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, type);
+		query.setString(0, assetType);
 		List<Repair> repairs = query.list();
 		Map<String, Cost> asset_time = new HashMap<String, Cost>();
 		for (Repair repair : repairs) {
@@ -325,19 +324,19 @@ public class CalculateService {
 				asset_time.put(repair.getAsset_id(), cost);
 			}
 		}
-		if (model.equals(Model.Asset)) {
+		if (model.equals("Asset")) {
 			for (String id : asset_time.keySet()) {
 				Cost cost = asset_time.get(id);
 				map.put(id, (double) cost.fail_time / cost.repair_count);
 			}
-		} else if (model.equals(Model.Type)) {
+		} else if (model.equals("Type")) {
 			long failtime = 0;
 			int count = 0;
 			for (String id : asset_time.keySet()) {
 				failtime = asset_time.get(id).fail_time + failtime;
 				count = count + asset_time.get(id).repair_count;
 			}
-			map.put(type, (double) failtime / count);
+			map.put(assetType, (double) failtime / count);
 		}
 		return map;
 	}
@@ -345,18 +344,18 @@ public class CalculateService {
 	/**
 	 * 计算某段时间内的报废率
 	 * @param map 容器
-	 * @param type 设备类型
+	 * @param assetType 设备类型
 	 * @param time 时间
 	 * @return
 	 */
 	public Map<String, Double> calculateScrap(Map<String, Double> map,
-			String type, String time) {
+			String assetType, String time) {
 		String hql = "from Scrap scrap where scrap.asset_type=? and scrap_time like ?";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, type);
+		query.setString(0, assetType);
 		query.setString(1, time);
 		List<Scrap> scraps = query.list();
-		map.put(type, (double)scraps.size() / API.GoodAsset);
+		map.put(assetType, (double)scraps.size() / API.GoodAsset);
 		return map;
 	}
 }

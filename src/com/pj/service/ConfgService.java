@@ -4,16 +4,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.annotation.Resources;
+
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.hibernate.mapping.Table;
-
+import org.springframework.stereotype.Service;
+@Service
 public class ConfgService {
+	@Resource
 	private SessionFactory sessionFactory;
 
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
  public boolean isConfg(){
 	 String sql="show table status where comment='view' ";
 	 SQLQuery query=sessionFactory.getCurrentSession().createSQLQuery(sql);

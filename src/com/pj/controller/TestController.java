@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.pj.model.Operation;
 import com.pj.service.ConfgService;
-import com.pj.service.UserManager;
 import com.pj.service.ViewManager;
 
 @Controller  
